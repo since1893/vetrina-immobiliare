@@ -145,4 +145,120 @@ export default async function AdminRichiesePage({
       </div>
 
       {/* Lista Richieste */}
-      {requests && requests.length > 
+      {requests && requests.length > 0 ? (
+        <div className="space-y-4">
+          {requests.map((request) => {
+            const requestUser = request.user as any
+            const reviewer = request.reviewer as any
+
+            return (
+              <div key={request.id} className="card">
+                <div className="flex flex-col md:flex-row gap-6">
+                  {/* Info Utente */}
+                  <div className="flex-1">
+                    <div className="flex items-start justify-between mb-4">
+                      <div>
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-bold text-lg">
+                            {requestUser?.full_name?.[0]?.toUpperCase() || requestUser?.email[0].toUpperCase()}
+                          </div>
+                          <div>
+                            <h3 className="font-semibold text-lg text-gray-900">
+                              {requestUser?.full_name || 'N/D'}
+                            </h3>
+                            <p className="text-sm text-gray-600">{requestUser?.email}</p>
+                            {requestUser?.phone && (
+                              <p className="text-sm text-gray-500">📞 {requestUser.phone}</p>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 mb-3">
+                          <span className="badge badge-info text-xs capitalize">
+                            Ruolo attuale: {requestUser?.role}
+                          </span>
+                          <span
+                            className={`badge text-xs ${
+                              request.status === 'in_attesa' ? 'badge-warning' :
+                              request.status === 'approvato' ? 'badge-success' :
+                              'badge-danger'
+                            }`}
+                          >
+                            {request.status}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Motivazione */}
+                    <div className="mb-4">
+                      <h4 className="text-sm font-medium text-gray-700 mb-2">Motivazione:</h4>
+                      <p className="text-gray-900 bg-gray-50 p-3 rounded-lg">
+                        {request.reason || 'Nessuna motivazione fornita'}
+                      </p>
+                    </div>
+
+                    {/* Note Admin */}
+                    {request.admin_notes && (
+                      <div className="mb-4">
+                        <h4 className="text-sm font-medium text-gray-700 mb-2">Note Admin:</h4>
+                        <p className="text-gray-900 bg-yellow-50 p-3 rounded-lg border border-yellow-200">
+                          {request.admin_notes}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Info Revisione */}
+                    <div className="text-sm text-gray-600 space-y-1">
+                      <p>📅 Richiesta inviata: {formatDate(request.created_at)}</p>
+                      {request.reviewed_at && (
+                        <>
+                          <p>👤 Revisionata da: {reviewer?.full_name || reviewer?.email || 'Admin'}</p>
+                          <p>🕐 Il: {formatDate(request.reviewed_at)}</p>
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Azioni */}
+                  {request.status === 'in_attesa' && (
+                    <div className="flex flex-col gap-3 md:w-48">
+                      <ApproveRequestButton 
+                        requestId={request.id} 
+                        userId={requestUser.id}
+                        adminId={user.id}
+                      />
+                      <RejectRequestButton 
+                        requestId={request.id}
+                        adminId={user.id}
+                      />
+                    </div>
+                  )}
+
+                  {request.status !== 'in_attesa' && (
+                    <div className="md:w-48 flex items-center justify-center">
+                      <div className="text-center text-gray-500 text-sm">
+                        {request.status === 'approvato' ? '✅ Già approvata' : '❌ Rifiutata'}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      ) : (
+        <div className="card text-center py-12">
+          <div className="text-6xl mb-4">📭</div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">
+            Nessuna richiesta
+          </h2>
+          <p className="text-gray-600">
+            {searchParams.status
+              ? `Nessuna richiesta con stato "${searchParams.status}"`
+              : 'Non ci sono richieste da gestire al momento'}
+          </p>
+        </div>
+      )}
+    </div>
+  )
+}
