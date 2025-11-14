@@ -28,6 +28,7 @@ export default function ChangeUserRoleButton({ userId, currentRole }: ChangeUser
     }
 
     if (!confirm(`Sei sicuro di voler cambiare il ruolo in "${newRole}"?`)) {
+      setIsOpen(false)
       return
     }
 
@@ -39,13 +40,17 @@ export default function ChangeUserRoleButton({ userId, currentRole }: ChangeUser
         .update({ role: newRole })
         .eq('id', userId)
 
-      if (error) throw error
+      if (error) {
+        console.error('Errore cambio ruolo:', error)
+        throw error
+      }
 
-      router.refresh()
+      alert(`✅ Ruolo cambiato in "${newRole}" con successo!`)
       setIsOpen(false)
+      router.refresh()
     } catch (error: any) {
       console.error('Errore cambio ruolo:', error)
-      alert('Errore durante il cambio ruolo')
+      alert('Errore durante il cambio ruolo: ' + error.message)
     } finally {
       setLoading(false)
     }
@@ -76,14 +81,14 @@ export default function ChangeUserRoleButton({ userId, currentRole }: ChangeUser
                 key={role.value}
                 onClick={() => handleChangeRole(role.value)}
                 disabled={loading}
-                className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 transition-colors ${
+                className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 transition-colors flex items-center justify-between ${
                   currentRole === role.value ? 'bg-gray-100 font-medium' : ''
                 }`}
               >
                 <span className={`badge ${role.color} text-xs mr-2`}>
                   {role.label}
                 </span>
-                {currentRole === role.value && '✓'}
+                {currentRole === role.value && <span className="text-green-600">✓</span>}
               </button>
             ))}
           </div>
