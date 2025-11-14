@@ -35,16 +35,12 @@ export default async function AdminRichiesePage({
     .from('role_requests')
     .select(`
       *,
-      user:users (
+      user:user_id (
         id,
         email,
         full_name,
         phone,
         role
-      ),
-      reviewer:reviewed_by (
-        full_name,
-        email
       )
     `)
     .order('created_at', { ascending: false })
@@ -53,7 +49,10 @@ export default async function AdminRichiesePage({
     query = query.eq('status', searchParams.status)
   }
 
-  const { data: requests } = await query
+  const { data: requests, error } = await query
+
+  console.log('Requests:', requests)
+  console.log('Error:', error)
 
   // Conta per status
   const { data: allRequests } = await supabase
@@ -144,12 +143,18 @@ export default async function AdminRichiesePage({
         </div>
       </div>
 
+      {/* Debug info */}
+      {error && (
+        <div className="card bg-red-50 border-red-200 mb-6">
+          <p className="text-red-800">Errore: {error.message}</p>
+        </div>
+      )}
+
       {/* Lista Richieste */}
       {requests && requests.length > 0 ? (
         <div className="space-y-4">
           {requests.map((request) => {
-            const requestUser = request.user as any
-            const reviewer = request.reviewer as any
+            const requestUser = Array.isArray(request.user) ? request.user[0] : request.user
 
             return (
               <div key={request.id} className="card">
@@ -160,13 +165,13 @@ export default async function AdminRichiesePage({
                       <div>
                         <div className="flex items-center gap-3 mb-2">
                           <div className="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-bold text-lg">
-                            {requestUser?.full_name?.[0]?.toUpperCase() || requestUser?.email[0].toUpperCase()}
+                            {requestUser?.full_name?.[0]?.toUpperCase() || requestUser?.email?.[0]?.toUpperCase() || '?'}
                           </div>
                           <div>
                             <h3 className="font-semibold text-lg text-gray-900">
                               {requestUser?.full_name || 'N/D'}
                             </h3>
-                            <p className="text-sm text-gray-600">{requestUser?.email}</p>
+                            <p className="text-sm text-gray-600">{requestUser?.email || 'Email non disponibile'}</p>
                             {requestUser?.phone && (
                               <p className="text-sm text-gray-500">📞 {requestUser.phone}</p>
                             )}
@@ -174,7 +179,7 @@ export default async function AdminRichiesePage({
                         </div>
                         <div className="flex items-center gap-2 mb-3">
                           <span className="badge badge-info text-xs capitalize">
-                            Ruolo attuale: {requestUser?.role}
+                            Ruolo attuale: {requestUser?.role || 'N/D'}
                           </span>
                           <span
                             className={`badge text-xs ${
@@ -211,16 +216,13 @@ export default async function AdminRichiesePage({
                     <div className="text-sm text-gray-600 space-y-1">
                       <p>📅 Richiesta inviata: {formatDate(request.created_at)}</p>
                       {request.reviewed_at && (
-                        <>
-                          <p>👤 Revisionata da: {reviewer?.full_name || reviewer?.email || 'Admin'}</p>
-                          <p>🕐 Il: {formatDate(request.reviewed_at)}</p>
-                        </>
+                        <p>🕐 Revisionata il: {formatDate(request.reviewed_at)}</p>
                       )}
                     </div>
                   </div>
 
                   {/* Azioni */}
-                  {request.status === 'in_attesa' && (
+                  {request.status === 'in_attesa' && requestUser?.id && (
                     <div className="flex flex-col gap-3 md:w-48">
                       <ApproveRequestButton 
                         requestId={request.id} 
