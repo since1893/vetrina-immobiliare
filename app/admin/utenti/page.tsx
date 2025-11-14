@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { formatDate } from '@/lib/utils/formatting'
 import ChangeUserRoleButton from '@/components/admin/ChangeUserRoleButton'
 import ToggleUserStatusButton from '@/components/admin/ToggleUserStatusButton'
+import DegradeToUserButton from '@/components/admin/DegradeToUserButton'
 
 export default async function AdminUtentiPage({
   searchParams,
@@ -203,6 +204,7 @@ export default async function AdminUtentiPage({
                           <>
                             <ChangeUserRoleButton userId={u.id} currentRole={u.role} />
                             <ToggleUserStatusButton userId={u.id} currentStatus={u.status} />
+                            <DegradeToUserButton userId={u.id} currentRole={u.role} />
                           </>
                         )}
                         {u.id === user.id && (
