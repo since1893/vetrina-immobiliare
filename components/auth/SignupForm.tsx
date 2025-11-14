@@ -34,7 +34,7 @@ export default function SignupForm() {
     }
 
     try {
-      // 1. Crea l'utente in Supabase Auth
+      // Crea l'utente in Supabase Auth
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
@@ -48,21 +48,8 @@ export default function SignupForm() {
 
       if (authError) throw authError
 
-      // 2. Crea il profilo nella tabella users
-      if (authData.user) {
-        const { error: profileError } = await supabase
-          .from('users')
-          .insert({
-            id: authData.user.id,
-            email: authData.user.email!,
-            full_name: fullName,
-            role: 'utente',
-            status: 'attivo',
-          })
-
-        if (profileError) throw profileError
-      }
-
+      // Il trigger automatico handle_new_user() creerà il profilo nella tabella users
+      
       setSuccess(true)
       
       // Redirect dopo 2 secondi
