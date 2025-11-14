@@ -8,6 +8,11 @@ export const revalidate = 60 // Rivalidazione ogni 60 secondi
 export default async function HomePage() {
   const supabase = await createServerSupabaseClient()
 
+  // Verifica se l'utente è loggato
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
   // Recupera gli ultimi annunci pubblicati
   const { data: listings } = await supabase
     .from('listings')
@@ -27,15 +32,31 @@ export default async function HomePage() {
             </Link>
             
             <nav className="hidden md:flex items-center space-x-6">
+              <Link href="/" className="text-gray-700 hover:text-primary-600">
+                Home
+              </Link>
               <Link href="/annunci" className="text-gray-700 hover:text-primary-600">
                 Annunci
               </Link>
-              <Link href="/login" className="text-gray-700 hover:text-primary-600">
-                Accedi
-              </Link>
-              <Link href="/signup" className="btn-primary">
-                Registrati
-              </Link>
+              {user ? (
+                <>
+                  <Link href="/dashboard" className="text-gray-700 hover:text-primary-600">
+                    Dashboard
+                  </Link>
+                  <span className="text-sm text-gray-600">
+                    👤 {user.email}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <Link href="/login" className="text-gray-700 hover:text-primary-600">
+                    Accedi
+                  </Link>
+                  <Link href="/signup" className="btn-primary">
+                    Registrati
+                  </Link>
+                </>
+              )}
             </nav>
           </div>
         </div>
@@ -175,9 +196,15 @@ export default async function HomePage() {
           <p className="text-xl mb-8 text-primary-100">
             Registrati gratuitamente e inizia a pubblicare i tuoi annunci
           </p>
-          <Link href="/signup" className="inline-block bg-white text-primary-600 px-8 py-3 rounded-lg hover:bg-gray-100 font-medium">
-            Registrati Gratis
-          </Link>
+          {user ? (
+            <Link href="/dashboard" className="inline-block bg-white text-primary-600 px-8 py-3 rounded-lg hover:bg-gray-100 font-medium">
+              Vai alla Dashboard
+            </Link>
+          ) : (
+            <Link href="/signup" className="inline-block bg-white text-primary-600 px-8 py-3 rounded-lg hover:bg-gray-100 font-medium">
+              Registrati Gratis
+            </Link>
+          )}
         </div>
       </section>
 
@@ -186,9 +213,9 @@ export default async function HomePage() {
         <div className="container-custom text-center">
           <p>&copy; 2024 Vetrina Immobiliare. Tutti i diritti riservati.</p>
           <div className="mt-4 space-x-4">
-            <Link href="/privacy" className="hover:text-white">Privacy Policy</Link>
-            <Link href="/termini" className="hover:text-white">Termini di Servizio</Link>
-            <Link href="/contatti" className="hover:text-white">Contatti</Link>
+            <Link href="#" className="hover:text-white">Privacy Policy</Link>
+            <Link href="#" className="hover:text-white">Termini di Servizio</Link>
+            <Link href="#" className="hover:text-white">Contatti</Link>
           </div>
         </div>
       </footer>
