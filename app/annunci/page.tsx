@@ -23,6 +23,11 @@ export default async function AnnunciPage({
 }) {
   const supabase = await createServerSupabaseClient()
 
+  // Verifica se l'utente è loggato
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
   // Costruisci la query con filtri
   let query = supabase
     .from('listings')
@@ -80,12 +85,25 @@ export default async function AnnunciPage({
               <Link href="/annunci" className="text-primary-600 font-medium">
                 Annunci
               </Link>
-              <Link href="/login" className="text-gray-700 hover:text-primary-600">
-                Accedi
-              </Link>
-              <Link href="/signup" className="btn-primary">
-                Registrati
-              </Link>
+              {user ? (
+                <>
+                  <Link href="/dashboard" className="text-gray-700 hover:text-primary-600">
+                    Dashboard
+                  </Link>
+                  <span className="text-sm text-gray-600">
+                    👤 {user.email}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <Link href="/login" className="text-gray-700 hover:text-primary-600">
+                    Accedi
+                  </Link>
+                  <Link href="/signup" className="btn-primary">
+                    Registrati
+                  </Link>
+                </>
+              )}
             </nav>
           </div>
         </div>
