@@ -198,7 +198,7 @@ export default async function AnnuncioDetailPage({
                     </div>
                   )}
 
-                  {listing.features && listing.features.map((feature) => (
+                  {listing.features && listing.features.map((feature: string) => (
                     <div key={feature} className="flex items-center gap-2">
                       <span className="text-2xl">✅</span>
                       <div className="font-medium capitalize">
