@@ -33,20 +33,27 @@ export default function ApproveRequestButton({ requestId, userId, adminId }: App
         })
         .eq('id', requestId)
 
-      if (requestError) throw requestError
+      if (requestError) {
+        console.error('Errore aggiornamento richiesta:', requestError)
+        throw requestError
+      }
 
-      // 2. Aggiorna il ruolo dell'utente
+      // 2. Aggiorna il ruolo dell'utente a "inserzionista"
       const { error: userError } = await supabase
         .from('users')
         .update({ role: 'inserzionista' })
         .eq('id', userId)
 
-      if (userError) throw userError
+      if (userError) {
+        console.error('Errore aggiornamento ruolo:', userError)
+        throw userError
+      }
 
+      alert('✅ Richiesta approvata! L\'utente è ora inserzionista.')
       router.refresh()
     } catch (error: any) {
       console.error('Errore approvazione:', error)
-      alert('Errore durante l\'approvazione della richiesta')
+      alert('Errore durante l\'approvazione della richiesta: ' + error.message)
     } finally {
       setLoading(false)
     }
