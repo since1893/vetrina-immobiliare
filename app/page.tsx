@@ -13,6 +13,12 @@ export default async function HomePage() {
     data: { user },
   } = await supabase.auth.getUser()
 
+  // Recupera impostazioni sito
+  const { data: siteSettings } = await supabase
+    .from('site_settings')
+    .select('*')
+    .single()
+
   // Recupera gli ultimi annunci pubblicati
   const { data: listings } = await supabase
     .from('listings')
@@ -28,7 +34,7 @@ export default async function HomePage() {
         <div className="container-custom">
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="text-2xl font-bold text-primary-600">
-              🏠 Vetrina Immobiliare
+              🏠 {siteSettings?.site_name || 'Vetrina Immobiliare'}
             </Link>
             
             <nav className="hidden md:flex items-center space-x-6">
@@ -63,13 +69,27 @@ export default async function HomePage() {
       </header>
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-primary-600 to-primary-800 text-white py-20">
-        <div className="container-custom text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
+      <section 
+        className="relative text-white py-20"
+        style={{
+          backgroundImage: siteSettings?.hero_background_image 
+            ? `url(${siteSettings.hero_background_image})` 
+            : `linear-gradient(to right, ${siteSettings?.primary_color || '#3b82f6'}, ${siteSettings?.primary_color || '#2563eb'})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
+        {/* Overlay scuro se c'è un'immagine */}
+        {siteSettings?.hero_background_image && (
+          <div className="absolute inset-0 bg-black/40" />
+        )}
+        
+        <div className="container-custom text-center relative z-10">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 drop-shadow-lg">
             Trova la tua casa ideale
           </h1>
-          <p className="text-xl mb-8 text-primary-100">
-            Pubblica e cerca annunci immobiliari gratuitamente
+          <p className="text-xl mb-8 text-white/90 drop-shadow">
+            {siteSettings?.site_description || 'Pubblica e cerca annunci immobiliari gratuitamente'}
           </p>
           
           {/* Search Bar */}
@@ -81,7 +101,8 @@ export default async function HomePage() {
             />
             <Link 
               href="/annunci"
-              className="bg-primary-600 text-white px-8 py-3 rounded-lg hover:bg-primary-700 font-medium"
+              className="px-8 py-3 rounded-lg font-medium text-white transition-colors"
+              style={{ backgroundColor: siteSettings?.primary_color || '#3b82f6' }}
             >
               Cerca
             </Link>
@@ -94,17 +115,30 @@ export default async function HomePage() {
         <div className="container-custom">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
             <div>
-              <div className="text-4xl font-bold text-primary-600 mb-2">
+              <div 
+                className="text-4xl font-bold mb-2"
+                style={{ color: siteSettings?.primary_color || '#3b82f6' }}
+              >
                 {listings?.length || 0}+
               </div>
               <div className="text-gray-600">Annunci Attivi</div>
             </div>
             <div>
-              <div className="text-4xl font-bold text-primary-600 mb-2">100%</div>
+              <div 
+                className="text-4xl font-bold mb-2"
+                style={{ color: siteSettings?.primary_color || '#3b82f6' }}
+              >
+                100%
+              </div>
               <div className="text-gray-600">Gratuito</div>
             </div>
             <div>
-              <div className="text-4xl font-bold text-primary-600 mb-2">24/7</div>
+              <div 
+                className="text-4xl font-bold mb-2"
+                style={{ color: siteSettings?.primary_color || '#3b82f6' }}
+              >
+                24/7
+              </div>
               <div className="text-gray-600">Sempre Disponibile</div>
             </div>
           </div>
@@ -118,7 +152,11 @@ export default async function HomePage() {
             <h2 className="text-3xl font-bold text-gray-900">
               Ultimi Annunci
             </h2>
-            <Link href="/annunci" className="text-primary-600 hover:text-primary-700 font-medium">
+            <Link 
+              href="/annunci" 
+              className="font-medium hover:underline"
+              style={{ color: siteSettings?.primary_color || '#3b82f6' }}
+            >
               Vedi tutti →
             </Link>
           </div>
@@ -161,7 +199,10 @@ export default async function HomePage() {
                   </p>
 
                   <div className="flex items-center justify-between mt-4">
-                    <div className="text-2xl font-bold text-primary-600">
+                    <div 
+                      className="text-2xl font-bold"
+                      style={{ color: siteSettings?.primary_color || '#3b82f6' }}
+                    >
                       {formatPrice(listing.price)}
                     </div>
                     <div className="text-gray-500 text-sm">
@@ -188,20 +229,31 @@ export default async function HomePage() {
       </section>
 
       {/* CTA Section */}
-      <section className="bg-primary-600 text-white py-16">
+      <section 
+        className="text-white py-16"
+        style={{ backgroundColor: siteSettings?.primary_color || '#3b82f6' }}
+      >
         <div className="container-custom text-center">
           <h2 className="text-3xl font-bold mb-4">
             Vuoi pubblicare un annuncio?
           </h2>
-          <p className="text-xl mb-8 text-primary-100">
+          <p className="text-xl mb-8 text-white/90">
             Registrati gratuitamente e inizia a pubblicare i tuoi annunci
           </p>
           {user ? (
-            <Link href="/dashboard" className="inline-block bg-white text-primary-600 px-8 py-3 rounded-lg hover:bg-gray-100 font-medium">
+            <Link 
+              href="/dashboard" 
+              className="inline-block bg-white px-8 py-3 rounded-lg hover:bg-gray-100 font-medium transition-colors"
+              style={{ color: siteSettings?.primary_color || '#3b82f6' }}
+            >
               Vai alla Dashboard
             </Link>
           ) : (
-            <Link href="/signup" className="inline-block bg-white text-primary-600 px-8 py-3 rounded-lg hover:bg-gray-100 font-medium">
+            <Link 
+              href="/signup" 
+              className="inline-block bg-white px-8 py-3 rounded-lg hover:bg-gray-100 font-medium transition-colors"
+              style={{ color: siteSettings?.primary_color || '#3b82f6' }}
+            >
               Registrati Gratis
             </Link>
           )}
@@ -211,11 +263,11 @@ export default async function HomePage() {
       {/* Footer */}
       <footer className="bg-gray-900 text-gray-300 py-8">
         <div className="container-custom text-center">
-          <p>&copy; 2024 Vetrina Immobiliare. Tutti i diritti riservati.</p>
+          <p>&copy; 2024 {siteSettings?.site_name || 'Vetrina Immobiliare'}. Tutti i diritti riservati.</p>
           <div className="mt-4 space-x-4">
-            <Link href="#" className="hover:text-white">Privacy Policy</Link>
-            <Link href="#" className="hover:text-white">Termini di Servizio</Link>
-            <Link href="#" className="hover:text-white">Contatti</Link>
+            <Link href="/privacy" className="hover:text-white">Privacy Policy</Link>
+            <Link href="/termini" className="hover:text-white">Termini di Servizio</Link>
+            <Link href="/contatti" className="hover:text-white">Contatti</Link>
           </div>
         </div>
       </footer>
