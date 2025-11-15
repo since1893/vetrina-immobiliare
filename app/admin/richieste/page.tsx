@@ -3,6 +3,8 @@ import { redirect } from 'next/navigation'
 import { formatDate } from '@/lib/utils/formatting'
 import ApproveRequestButton from '@/components/admin/ApproveRequestButton'
 import RejectRequestButton from '@/components/admin/RejectRequestButton'
+import DeleteRequestButton from '@/components/admin/DeleteRequestButton'
+import EditRequestNotesButton from '@/components/admin/EditRequestNotesButton'
 
 export default async function AdminRichiesePage({
   searchParams,
@@ -49,10 +51,7 @@ export default async function AdminRichiesePage({
     query = query.eq('status', searchParams.status)
   }
 
-  const { data: requests, error } = await query
-
-  console.log('Requests:', requests)
-  console.log('Error:', error)
+  const { data: requests } = await query
 
   // Conta per status
   const { data: allRequests } = await supabase
@@ -73,7 +72,7 @@ export default async function AdminRichiesePage({
           Richieste Inserzionista
         </h1>
         <p className="text-gray-600">
-          Approva o rifiuta le richieste di upgrade a inserzionista
+          Approva, rifiuta o gestisci le richieste di upgrade a inserzionista
         </p>
       </div>
 
@@ -142,13 +141,6 @@ export default async function AdminRichiesePage({
           </a>
         </div>
       </div>
-
-      {/* Debug info */}
-      {error && (
-        <div className="card bg-red-50 border-red-200 mb-6">
-          <p className="text-red-800">Errore: {error.message}</p>
-        </div>
-      )}
 
       {/* Lista Richieste */}
       {requests && requests.length > 0 ? (
@@ -222,27 +214,36 @@ export default async function AdminRichiesePage({
                   </div>
 
                   {/* Azioni */}
-                  {request.status === 'in_attesa' && requestUser?.id && (
-                    <div className="flex flex-col gap-3 md:w-48">
-                      <ApproveRequestButton 
-                        requestId={request.id} 
-                        userId={requestUser.id}
-                        adminId={user.id}
-                      />
-                      <RejectRequestButton 
-                        requestId={request.id}
-                        adminId={user.id}
-                      />
-                    </div>
-                  )}
+                  <div className="flex flex-col gap-3 md:w-48">
+                    {/* Azioni per richieste in attesa */}
+                    {request.status === 'in_attesa' && requestUser?.id && (
+                      <>
+                        <ApproveRequestButton 
+                          requestId={request.id} 
+                          userId={requestUser.id}
+                          adminId={user.id}
+                        />
+                        <RejectRequestButton 
+                          requestId={request.id}
+                          adminId={user.id}
+                        />
+                      </>
+                    )}
 
-                  {request.status !== 'in_attesa' && (
-                    <div className="md:w-48 flex items-center justify-center">
-                      <div className="text-center text-gray-500 text-sm">
+                    {/* Azioni disponibili per tutte le richieste */}
+                    <EditRequestNotesButton 
+                      requestId={request.id}
+                      currentNotes={request.admin_notes}
+                    />
+                    <DeleteRequestButton requestId={request.id} />
+
+                    {/* Badge stato per richieste già processate */}
+                    {request.status !== 'in_attesa' && (
+                      <div className="text-center text-gray-500 text-sm mt-2">
                         {request.status === 'approvato' ? '✅ Già approvata' : '❌ Rifiutata'}
                       </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               </div>
             )
