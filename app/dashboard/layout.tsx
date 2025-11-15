@@ -57,13 +57,18 @@ export default async function DashboardLayout({
             </nav>
 
             <div className="flex items-center gap-4">
-              <div className="hidden md:block text-right">
-                <p className="text-sm font-medium text-gray-900">
-                  {userData?.full_name || user.email}
-                </p>
-                <p className="text-xs text-gray-500 capitalize">
-                  {userData?.role}
-                </p>
+              <div className="hidden md:flex items-center gap-3">
+                <div className="text-right">
+                  <p className="text-sm font-medium text-gray-900">
+                    {userData?.full_name || user.email}
+                  </p>
+                  <p className="text-xs text-gray-500 capitalize">
+                    {userData?.role}
+                  </p>
+                </div>
+                <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-semibold">
+                  {userData?.full_name?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase()}
+                </div>
               </div>
               <LogoutButton />
             </div>
