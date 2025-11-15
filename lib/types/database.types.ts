@@ -194,6 +194,7 @@ export interface Database {
           contact_phone: string | null
           facebook_url: string | null
           instagram_url: string | null
+          hero_background_image: string | null
           created_at: string
           updated_at: string
         }
@@ -208,6 +209,7 @@ export interface Database {
           contact_phone?: string | null
           facebook_url?: string | null
           instagram_url?: string | null
+          hero_background_image?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -222,6 +224,7 @@ export interface Database {
           contact_phone?: string | null
           facebook_url?: string | null
           instagram_url?: string | null
+          hero_background_image?: string | null
           created_at?: string
           updated_at?: string
         }
